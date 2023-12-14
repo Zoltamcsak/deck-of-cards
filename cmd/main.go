@@ -6,21 +6,29 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
+	"github.com/joho/godotenv"
 	"github.com/szuecs/gin-glog"
 	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
 )
 
+var (
+	port string
+)
+
 func main() {
+
 	flag.Set("stderrthreshold", "INFO")
+	loadEnvVars()
 	engine := gin.New()
 	engine.Use(ginglog.Logger(time.Second))
 	engine.Use(gin.Recovery())
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%s", "8080"),
+		Addr:    fmt.Sprintf(":%s", port),
 		Handler: engine,
 	}
 	engine.GET("/test", func(c *gin.Context) {
@@ -43,4 +51,13 @@ func main() {
 	if err := server.Shutdown(ctx); err != nil {
 		glog.Fatalf("server forced to shutdown: %s", err)
 	}
+}
+
+func loadEnvVars() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		glog.Fatal("Error loading .env file")
+	}
+
+	port = os.Getenv("PORT")
 }
