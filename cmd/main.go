@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/deck/internal/app/config"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
 	"github.com/joho/godotenv"
@@ -20,7 +21,6 @@ var (
 )
 
 func main() {
-
 	flag.Set("stderrthreshold", "INFO")
 	loadEnvVars()
 	engine := gin.New()
@@ -34,6 +34,10 @@ func main() {
 	engine.GET("/test", func(c *gin.Context) {
 		c.JSON(200, "hello")
 	})
+	_, err := config.NewDbConnection()
+	if err != nil {
+		glog.Fatalf("couldn't connect to db", err.Error())
+	}
 	glog.Infoln("initializing server")
 	// Initializing the server in a goroutine so that it won't block graceful shutdown
 	go func() {
