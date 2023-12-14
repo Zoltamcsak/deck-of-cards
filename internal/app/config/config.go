@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/golang/glog"
 	"github.com/jmoiron/sqlx"
 	"os"
@@ -39,18 +41,16 @@ func NewDbConnection() (*sqlx.DB, error) {
 }
 
 func (db Database) sourceName() string {
-	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", db.host, db.user, db.pass, db.name)
+	return fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=disable", db.user, db.pass, db.host, db.name)
 }
 
 func (db Database) doMigrations(sqlDb *sql.DB) error {
 	driver, err := postgres.WithInstance(sqlDb, &postgres.Config{})
-
 	if err != nil {
 		return err
 	}
 
-	m, err := migrate.NewWithDatabaseInstance(db.migrationPath, db.name, driver)
-
+	m, err := migrate.NewWithDatabaseInstance(fmt.Sprintf("file://%s", db.migrationPath), "postgres", driver)
 	if err != nil {
 		return err
 	}
