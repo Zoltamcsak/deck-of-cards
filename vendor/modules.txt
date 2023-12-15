@@ -80,6 +80,9 @@ github.com/golang-migrate/migrate/v4/source/iofs
 github.com/golang/glog
 github.com/golang/glog/internal/logsink
 github.com/golang/glog/internal/stackdump
+# github.com/google/uuid v1.5.0
+## explicit
+github.com/google/uuid
 # github.com/hashicorp/errwrap v1.1.0
 ## explicit
 github.com/hashicorp/errwrap

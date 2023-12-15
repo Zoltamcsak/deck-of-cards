@@ -5,6 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"github.com/deck/internal/app/config"
+	"github.com/deck/internal/app/handler"
+	"github.com/deck/internal/app/repo"
+	"github.com/deck/internal/app/service"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
 	"github.com/joho/godotenv"
@@ -23,6 +26,7 @@ var (
 func main() {
 	flag.Set("stderrthreshold", "INFO")
 	loadEnvVars()
+
 	engine := gin.New()
 	engine.Use(ginglog.Logger(time.Second))
 	engine.Use(gin.Recovery())
@@ -31,10 +35,12 @@ func main() {
 		Addr:    fmt.Sprintf(":%s", port),
 		Handler: engine,
 	}
-	engine.GET("/test", func(c *gin.Context) {
-		c.JSON(200, "hello")
-	})
-	_, err := config.NewDbConnection()
+
+	db, err := config.NewDbConnection()
+	deckRepo := repo.NewCardRepo(db)
+	deckService := service.NewDeckService(deckRepo)
+	deckHandler := handler.NewDeckHandler(deckService)
+	engine.POST("/deck", deckHandler.CreateDeck)
 	if err != nil {
 		glog.Fatalf("couldn't connect to db", err.Error())
 	}
