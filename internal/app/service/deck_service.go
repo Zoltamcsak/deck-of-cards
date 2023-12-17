@@ -80,6 +80,40 @@ func (s *DeckService) GetDeckById(id string) (*model.OpenDeckResponse, error) {
 	}, nil
 }
 
+func (s *DeckService) DrawCards(id string, count int) ([]model.Card, error) {
+	if count <= 0 || count > 52 {
+		return nil, customErr.New(http.StatusBadRequest, "count must be between 1 - 52")
+	}
+	deck, err := s.GetDeckById(id)
+	if err != nil {
+		return nil, err
+	}
+	if count > deck.Remaining {
+		return nil, customErr.New(http.StatusBadRequest, "count must be less or equal than deck's remaining")
+	}
+	cards := drawFirstCards(*deck, count)
+	updatedDeck := getUpdateDeck(*deck, count)
+	err = s.repo.UpdateDeck(updatedDeck)
+	if err != nil {
+		return nil, customErr.Wrap(http.StatusInternalServerError, "couldn't update deck", err)
+	}
+	return cards, nil
+}
+
+func getUpdateDeck(deck model.OpenDeckResponse, count int) repo.Deck {
+	cardCodes := make([]string, len(deck.Cards)-count)
+	for i, c := range deck.Cards[count:] {
+		cardCodes[i] = c.Code
+	}
+	updatedDeck := repo.Deck{
+		Id:        deck.DeckId,
+		Remaining: deck.Remaining - count,
+		Shuffled:  deck.Shuffled,
+		Cards:     cardCodes,
+	}
+	return updatedDeck
+}
+
 func generateDefaultDeck() []string {
 	var deck []string
 	for _, s := range repo.SequentialSuits {
@@ -136,4 +170,8 @@ func getValueAndSuit(code string) (*model.Card, error) {
 		Suit:  suit,
 		Code:  code,
 	}, nil
+}
+
+func drawFirstCards(deck model.OpenDeckResponse, count int) []model.Card {
+	return deck.Cards[:count]
 }

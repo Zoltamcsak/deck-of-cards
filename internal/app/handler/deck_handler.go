@@ -52,3 +52,19 @@ func (h *DeckHandler) GetDeckById(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, deck)
 }
+
+func (h *DeckHandler) DrawCards(ctx *gin.Context) {
+	id := ctx.Param("id")
+	countParam := ctx.Query("count")
+	count, err := strconv.Atoi(countParam)
+	if err != nil {
+		serveHttpError(ctx, custErr.New(http.StatusBadRequest, "count must be a number"))
+		return
+	}
+	cards, err := h.service.DrawCards(id, count)
+	if err != nil {
+		serveHttpError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusCreated, cards)
+}
