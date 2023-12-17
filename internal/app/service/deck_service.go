@@ -1,6 +1,7 @@
 package service
 
 import (
+	"database/sql"
 	"fmt"
 	customErr "github.com/deck/internal/app/error"
 	"github.com/deck/internal/app/model"
@@ -55,6 +56,30 @@ func (s *DeckService) CreateDeck(req model.CreateDeckRequest) (*model.CreateDeck
 	}, nil
 }
 
+func (s *DeckService) GetDeckById(id string) (*model.OpenDeckResponse, error) {
+	deck, err := s.repo.GetDeckById(id)
+	if err == sql.ErrNoRows {
+		return nil, customErr.New(http.StatusNotFound, fmt.Sprintf("deck with id %s wasn't found", id))
+	}
+	if err != nil {
+		return nil, customErr.Wrap(http.StatusInternalServerError, "couldn't get deck from the database", err)
+	}
+	cards := make([]model.Card, len(deck.Cards))
+	for i, c := range deck.Cards {
+		card, err := getValueAndSuit(c)
+		if err != nil {
+			return nil, err
+		}
+		cards[i] = *card
+	}
+	return &model.OpenDeckResponse{
+		DeckId:    deck.Id,
+		Shuffled:  deck.Shuffled,
+		Remaining: deck.Remaining,
+		Cards:     cards,
+	}, nil
+}
+
 func generateDefaultDeck() []string {
 	var deck []string
 	for _, s := range repo.SequentialSuits {
@@ -94,4 +119,21 @@ func isValidCardCode(code string) bool {
 
 	validCardPattern := regexp.MustCompile(fmt.Sprintf("^(%s)(%s)$", validRanks, validSuits))
 	return validCardPattern.MatchString(strings.ToUpper(code))
+}
+
+func getValueAndSuit(code string) (*model.Card, error) {
+	if !isValidCardCode(code) {
+		return nil, customErr.New(http.StatusInternalServerError, "code is not valid")
+	}
+	valueCode := code[:len(code)-1]
+	suitCode := string(code[len(code)-1])
+
+	fullValue := repo.Values[repo.CardCode(valueCode)]
+	suit := repo.Suites[repo.SuitCode(suitCode)]
+
+	return &model.Card{
+		Value: fullValue,
+		Suit:  suit,
+		Code:  code,
+	}, nil
 }

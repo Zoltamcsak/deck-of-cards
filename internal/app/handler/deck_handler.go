@@ -25,7 +25,7 @@ func (h *DeckHandler) CreateDeck(ctx *gin.Context) {
 	if len(shuffledParam) > 0 {
 		shuffled, err = strconv.ParseBool(shuffledParam)
 		if err != nil {
-			serveHttpError(ctx, custErr.New(http.StatusBadRequest, "shuffled no correct"))
+			serveHttpError(ctx, custErr.New(http.StatusBadRequest, "shuffled must be boolean"))
 			return
 		}
 	}
@@ -41,4 +41,14 @@ func (h *DeckHandler) CreateDeck(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, deck)
+}
+
+func (h *DeckHandler) GetDeckById(ctx *gin.Context) {
+	id := ctx.Param("id")
+	deck, err := h.service.GetDeckById(id)
+	if err != nil {
+		serveHttpError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, deck)
 }

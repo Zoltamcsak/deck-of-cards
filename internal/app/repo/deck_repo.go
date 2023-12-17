@@ -1,6 +1,9 @@
 package repo
 
-import "github.com/jmoiron/sqlx"
+import (
+	"github.com/golang/glog"
+	"github.com/jmoiron/sqlx"
+)
 
 type DeckRepo struct {
 	db *sqlx.DB
@@ -17,4 +20,14 @@ func (r *DeckRepo) CreateDeck(deck Deck) error {
 		return err
 	}
 	return nil
+}
+
+func (r *DeckRepo) GetDeckById(id string) (*Deck, error) {
+	var deck Deck
+	err := r.db.Get(&deck, "select * from decks where id=$1", id)
+	if err != nil {
+		glog.Errorf("error while getting deck with id %s", id, err)
+		return nil, err
+	}
+	return &deck, nil
 }

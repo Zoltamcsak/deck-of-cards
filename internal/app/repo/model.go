@@ -34,6 +34,29 @@ const (
 var SequentialValues = []CardCode{Ace, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King}
 var SequentialSuits = []SuitCode{Spades, Diamonds, Clubs, Hearts}
 
+var Values = map[CardCode]string{
+	Ace:   "ACE",
+	Jack:  "JACK",
+	Queen: "QUEEN",
+	King:  "KING",
+	Two:   "2",
+	Three: "3",
+	Four:  "4",
+	Five:  "5",
+	Six:   "6",
+	Seven: "7",
+	Eight: "8",
+	Nine:  "9",
+	Ten:   "10",
+}
+
+var Suites = map[SuitCode]string{
+	Spades:   "SPADES",
+	Diamonds: "DIAMONDS",
+	Clubs:    "CLUBS",
+	Hearts:   "HEARTS",
+}
+
 type Deck struct {
 	Id        string         `db:"id"`
 	Shuffled  bool           `db:"shuffled"`

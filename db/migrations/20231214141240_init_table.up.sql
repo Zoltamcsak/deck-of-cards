@@ -1,5 +1,5 @@
 create table if not exists decks (
-    id uuid primary key,
+    id varchar(50) primary key,
     shuffled bool default false not null,
     remaining int not null,
     cards text[] not null,

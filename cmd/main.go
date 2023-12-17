@@ -41,6 +41,7 @@ func main() {
 	deckService := service.NewDeckService(deckRepo)
 	deckHandler := handler.NewDeckHandler(deckService)
 	engine.POST("/deck", deckHandler.CreateDeck)
+	engine.GET("/decks/:id", deckHandler.GetDeckById)
 	if err != nil {
 		glog.Fatalf("couldn't connect to db", err.Error())
 	}
