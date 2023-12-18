@@ -25,7 +25,7 @@ func NewDeckService(repo *repo.DeckRepo) *DeckService {
 func (s *DeckService) CreateDeck(req model.CreateDeckRequest) (*model.CreateDeckResponse, error) {
 	var cards []string
 	if len(req.Cards) == 0 {
-		cards = generateDefaultDeck()
+		cards = GenerateDefaultDeck()
 	} else {
 		cards = strings.Split(req.Cards, ",")
 		err := validateCards(cards)
@@ -34,7 +34,7 @@ func (s *DeckService) CreateDeck(req model.CreateDeckRequest) (*model.CreateDeck
 		}
 	}
 	if req.Shuffled {
-		shuffleCards(cards)
+		ShuffleCards(cards)
 	}
 	now := time.Now().UTC()
 	deck := repo.Deck{
@@ -92,7 +92,7 @@ func (s *DeckService) DrawCards(id string, count int) ([]model.Card, error) {
 		return nil, customErr.New(http.StatusBadRequest, "count must be less or equal than deck's remaining")
 	}
 	cards := drawFirstCards(*deck, count)
-	updatedDeck := getUpdateDeck(*deck, count)
+	updatedDeck := updateDeck(*deck, count)
 	err = s.repo.UpdateDeck(updatedDeck)
 	if err != nil {
 		return nil, customErr.Wrap(http.StatusInternalServerError, "couldn't update deck", err)
@@ -100,7 +100,25 @@ func (s *DeckService) DrawCards(id string, count int) ([]model.Card, error) {
 	return cards, nil
 }
 
-func getUpdateDeck(deck model.OpenDeckResponse, count int) repo.Deck {
+func GenerateDefaultDeck() []string {
+	var deck []string
+	for _, s := range repo.SequentialSuits {
+		for _, v := range repo.SequentialValues {
+			deck = append(deck, fmt.Sprintf("%s%s", v, s))
+		}
+	}
+	return deck
+}
+
+func ShuffleCards(cards []string) {
+	r := rand.New(rand.NewSource(time.Now().Unix()))
+	r.Seed(time.Now().UnixNano())
+	r.Shuffle(len(cards), func(i, j int) {
+		cards[i], cards[j] = cards[j], cards[i]
+	})
+}
+
+func updateDeck(deck model.OpenDeckResponse, count int) repo.Deck {
 	cardCodes := make([]string, len(deck.Cards)-count)
 	for i, c := range deck.Cards[count:] {
 		cardCodes[i] = c.Code
@@ -112,24 +130,6 @@ func getUpdateDeck(deck model.OpenDeckResponse, count int) repo.Deck {
 		Cards:     cardCodes,
 	}
 	return updatedDeck
-}
-
-func generateDefaultDeck() []string {
-	var deck []string
-	for _, s := range repo.SequentialSuits {
-		for _, v := range repo.SequentialValues {
-			deck = append(deck, fmt.Sprintf("%s%s", v, s))
-		}
-	}
-	return deck
-}
-
-func shuffleCards(cards []string) {
-	r := rand.New(rand.NewSource(time.Now().Unix()))
-	r.Seed(time.Now().UnixNano())
-	r.Shuffle(len(cards), func(i, j int) {
-		cards[i], cards[j] = cards[j], cards[i]
-	})
 }
 
 func validateCards(cards []string) error {
