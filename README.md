@@ -45,6 +45,8 @@ curl --request PUT 'http://localhost:8080/decks/<deck-id>/cards?count=3'
 * Run `make run` to start the project locally
 * You can access the application on port `:8080`
 
+Use `make test` to run the tests. Make sure you have Docker running, since it's test containers.
+
 There's a `.env` file added to this repository just to make running locally easier. You can update any value there if needed!
 
 There's a Postman collection called `deck_of_cards_postman_collection.json` that includes all 3 endpoints.
