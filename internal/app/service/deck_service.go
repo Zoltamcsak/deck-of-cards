@@ -15,10 +15,10 @@ import (
 )
 
 type DeckService struct {
-	repo *repo.DeckRepo
+	repo repo.DeckRepo
 }
 
-func NewDeckService(repo *repo.DeckRepo) *DeckService {
+func NewDeckService(repo repo.DeckRepo) *DeckService {
 	return &DeckService{repo: repo}
 }
 

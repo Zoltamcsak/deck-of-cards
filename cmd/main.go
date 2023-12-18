@@ -25,8 +25,8 @@ var (
 )
 
 func main() {
-	_ = flag.Set("stderrthreshold", logLevel)
 	loadEnvVars()
+	_ = flag.Set("stderrthreshold", logLevel)
 
 	engine := gin.New()
 	engine.Use(ginglog.Logger(time.Second))
@@ -39,7 +39,7 @@ func main() {
 	}
 
 	db, err := config.NewDbConnection()
-	deckRepo := repo.NewCardRepo(db)
+	deckRepo := repo.NewDeckRepo(db)
 	deckService := service.NewDeckService(deckRepo)
 	deckHandler := handler.NewDeckHandler(deckService)
 	deckHandler.InitRoutes(engine)
