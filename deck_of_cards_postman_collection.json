@@ -1,0 +1,83 @@
+{
+	"info": {
+		"_postman_id": "d86912de-e707-41a0-9781-74acbdc44075",
+		"name": "Deck of cards",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1216598"
+	},
+	"item": [
+		{
+			"name": "Create new deck",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/decks?shuffled=true&cards=AS,KD,AC,2C,KH",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"decks"
+					],
+					"query": [
+						{
+							"key": "shuffled",
+							"value": "true"
+						},
+						{
+							"key": "cards",
+							"value": "AS,KD,AC,2C,KH"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Open deck",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/decks/838a7078-b84e-40b5-ae43-bbb2fff598bf",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"decks",
+						"838a7078-b84e-40b5-ae43-bbb2fff598bf"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Draw a card",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/decks/838a7078-b84e-40b5-ae43-bbb2fff598bf/cards?count=10",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"decks",
+						"838a7078-b84e-40b5-ae43-bbb2fff598bf",
+						"cards"
+					],
+					"query": [
+						{
+							"key": "count",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
