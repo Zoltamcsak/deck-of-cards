@@ -39,14 +39,16 @@ func main() {
 	}
 
 	db, err := config.NewDbConnection()
+	if err != nil {
+		glog.Fatalf("couldn't connect to db", err.Error())
+		panic(err)
+	}
+
 	deckRepo := repo.NewDeckRepo(db)
 	deckService := service.NewDeckService(deckRepo)
 	deckHandler := handler.NewDeckHandler(deckService)
 	deckHandler.InitRoutes(engine)
 
-	if err != nil {
-		glog.Fatalf("couldn't connect to db", err.Error())
-	}
 	glog.Infoln("initializing server")
 	// Initializing the server in a goroutine so that it won't block graceful shutdown
 	go func() {
