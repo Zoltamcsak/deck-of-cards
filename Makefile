@@ -20,3 +20,7 @@ run-db:
 .PHONY: stop-db
 stop-db:
 	docker-compose down
+
+.PHONY: tidy
+tidy:
+	go mod tidy & go mod vendor
