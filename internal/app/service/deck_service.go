@@ -14,15 +14,21 @@ import (
 	"time"
 )
 
-type DeckService struct {
+type DeckService interface {
+	CreateDeck(req model.CreateDeckRequest) (*model.CreateDeckResponse, error)
+	GetDeckById(id string) (*model.OpenDeckResponse, error)
+	DrawCards(id string, count int) ([]model.Card, error)
+}
+
+type deckService struct {
 	repo repo.DeckRepo
 }
 
-func NewDeckService(repo repo.DeckRepo) *DeckService {
-	return &DeckService{repo: repo}
+func NewDeckService(repo repo.DeckRepo) DeckService {
+	return &deckService{repo: repo}
 }
 
-func (s *DeckService) CreateDeck(req model.CreateDeckRequest) (*model.CreateDeckResponse, error) {
+func (s *deckService) CreateDeck(req model.CreateDeckRequest) (*model.CreateDeckResponse, error) {
 	var cards []string
 	if len(req.Cards) == 0 {
 		cards = GenerateDefaultDeck()
@@ -56,7 +62,7 @@ func (s *DeckService) CreateDeck(req model.CreateDeckRequest) (*model.CreateDeck
 	}, nil
 }
 
-func (s *DeckService) GetDeckById(id string) (*model.OpenDeckResponse, error) {
+func (s *deckService) GetDeckById(id string) (*model.OpenDeckResponse, error) {
 	deck, err := s.repo.GetDeckById(id)
 	if err == sql.ErrNoRows {
 		return nil, customErr.New(http.StatusNotFound, fmt.Sprintf("deck with id %s wasn't found", id))
@@ -80,7 +86,7 @@ func (s *DeckService) GetDeckById(id string) (*model.OpenDeckResponse, error) {
 	}, nil
 }
 
-func (s *DeckService) DrawCards(id string, count int) ([]model.Card, error) {
+func (s *deckService) DrawCards(id string, count int) ([]model.Card, error) {
 	if count <= 0 || count > 52 {
 		return nil, customErr.New(http.StatusBadRequest, "count must be between 1 - 52")
 	}

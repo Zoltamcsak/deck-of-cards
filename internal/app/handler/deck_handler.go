@@ -10,10 +10,10 @@ import (
 )
 
 type DeckHandler struct {
-	service *service.DeckService
+	service service.DeckService
 }
 
-func NewDeckHandler(service *service.DeckService) *DeckHandler {
+func NewDeckHandler(service service.DeckService) *DeckHandler {
 	return &DeckHandler{service: service}
 }
 
@@ -70,7 +70,7 @@ func (h *DeckHandler) DrawCards(ctx *gin.Context) {
 }
 
 func (h *DeckHandler) InitRoutes(engine *gin.Engine) {
-	engine.POST("/deck", h.CreateDeck)
+	engine.POST("/decks", h.CreateDeck)
 	engine.GET("/decks/:id", h.GetDeckById)
 	engine.PUT("/decks/:id/cards", h.DrawCards)
 }
