@@ -20,16 +20,18 @@ import (
 )
 
 var (
-	port string
+	port     string
+	logLevel string
 )
 
 func main() {
-	flag.Set("stderrthreshold", "INFO")
+	_ = flag.Set("stderrthreshold", logLevel)
 	loadEnvVars()
 
 	engine := gin.New()
 	engine.Use(ginglog.Logger(time.Second))
 	engine.Use(gin.Recovery())
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%s", port),
@@ -40,9 +42,7 @@ func main() {
 	deckRepo := repo.NewCardRepo(db)
 	deckService := service.NewDeckService(deckRepo)
 	deckHandler := handler.NewDeckHandler(deckService)
-	engine.POST("/deck", deckHandler.CreateDeck)
-	engine.GET("/decks/:id", deckHandler.GetDeckById)
-	engine.PUT("/decks/:id/cards", deckHandler.DrawCards)
+	deckHandler.InitRoutes(engine)
 
 	if err != nil {
 		glog.Fatalf("couldn't connect to db", err.Error())
@@ -54,7 +54,6 @@ func main() {
 			glog.Fatalf("error starting server: %s", err)
 		}
 	}()
-	glog.Info("hello deck of card")
 
 	<-ctx.Done()
 	stop()
@@ -73,4 +72,5 @@ func loadEnvVars() {
 	}
 
 	port = os.Getenv("PORT")
+	logLevel = os.Getenv("LOG_LEVEL")
 }

@@ -68,3 +68,9 @@ func (h *DeckHandler) DrawCards(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusCreated, cards)
 }
+
+func (h *DeckHandler) InitRoutes(engine *gin.Engine) {
+	engine.POST("/deck", h.CreateDeck)
+	engine.GET("/decks/:id", h.GetDeckById)
+	engine.PUT("/decks/:id/cards", h.DrawCards)
+}
