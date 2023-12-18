@@ -5,32 +5,31 @@
 This project creates a REST API to handle the deck and cards to be used in 
 games like Poker or Blackjack. 
 
-It has the following 3 operations
 
-### Create a new deck
-`POST /decks`
+- ### Create a new deck
+    `POST /decks`
+    
+    It can accept query parameters of `cards` and `shuffled`
+    
+    ``
+    curl --request POST 'http://localhost:8080/decks?cards=AS,KD,AC,2C,KH&shuffled=true'
+    ``
 
-It can accept query parameters of `cards` and `shuffled`
+- ### Open a deck
+    `GET /decks/:id`
+    
+    ``
+    curl --request GET 'http://localhost:8080/decks/<deck-id>'
+    ``
 
-``
-curl --request POST 'http://localhost:8080/decks?cards=AS,KD,AC,2C,KH&shuffled=true'
-``
-
-### Open a deck
-`GET /decks/:id`
-
-``
-curl --request GET 'http://localhost:8080/decks/<deck-id>'
-``
-
-### Draw a card
-`PUT /decks/:id/cards`
-
-It can have a query parameter `count`
-
-``
-curl --request PUT 'http://localhost:8080/decks/<deck-id>/cards?count=3'
-``
+- ### Draw a card
+    `PUT /decks/:id/cards`
+    
+    It can have a query parameter `count`
+    
+    ``
+    curl --request PUT 'http://localhost:8080/decks/<deck-id>/cards?count=3'
+    ``
 
 ## Running the project
 
